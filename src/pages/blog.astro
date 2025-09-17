@@ -1,0 +1,18 @@
+---
+import { wpQuery } from '../lib/wp';
+
+const data = await wpQuery<{ posts: { nodes: { title: string, slug: string }[] } }>(`
+  query BlogList {
+    posts(first: 10) {
+      nodes { slug title }
+    }
+  }
+`);
+const posts = data.posts.nodes;
+---
+<h1>Blog</h1>
+<ul>
+  {posts.map((p) => (
+    <li><a href={`/blog/${p.slug}`}>{p.title}</a></li>
+  ))}
+</ul>

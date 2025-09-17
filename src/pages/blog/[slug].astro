@@ -1,0 +1,24 @@
+---
+import { wpQuery } from '../../lib/wp';
+
+export async function getStaticPaths() {
+  const data = await wpQuery<{ posts: { nodes: { slug: string }[] } }>(`
+    query { posts(first: 100) { nodes { slug } } }
+  `);
+  return data.posts.nodes.map(p => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const data = await wpQuery<{ post: { title: string, content: string } }>(`
+  query ($slug: ID!) {
+    post(id: $slug, idType: SLUG) { title content }
+  }
+`, { slug });
+
+const post = data.post;
+---
+<article>
+  <h1>{post.title}</h1>
+  <div set:html={post.content} />
+</article>
+
